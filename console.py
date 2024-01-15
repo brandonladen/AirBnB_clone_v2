@@ -10,7 +10,6 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from shlex import split
 
 
 class HBNBCommand(cmd.Cmd):
@@ -74,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is '}'\
+                    if pline[0] is '{' and pline[-1] is'}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -114,58 +113,47 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
+    def _create_dict_instance(self, line):
+        """
+            Parse input and convert it to
+            Dict for do_create
+        """
+        new_dict = {}
+        for item in line:
+            if "=" in item:
+                # creating list from value and key
+                # if "=" found
+                new_arg = item.split("=", 1)
+                key = new_arg[0]
+                value = new_arg[1]
+                if value[0] == '"' == value[-1]:
+                    value = value.replace('"', "").replace("_", " ")
+                else:
+                    try:
+                        value = int(value)
+                    except Exception:
+                        try:
+                            value = float(value)
+                        except Exception:
+                            continue
+                new_dict[key] = value
+        return new_dict
+
     def do_create(self, args):
-        """Create an object of any class with specified parameters."""
-        if len(args) == 0:
+        """ Create an object of any class"""
+        args = args.split()
+        if not args[0]:
             print("** class name missing **")
-        return
-
-    try:
-        """ Split the input into a list of arguments using shlex"""
-        args_list = split(args)
-
-        """ Create a dictionary to store parameter names and values"""
-        params_dict = {}
-
-        # Iterate through args starting from index 1 (skipping the class name)
-        for arg in args_list[1:]:
-            # Split the argument into parameter name and value
-            # Example: ['name', 'California']
-            arg_parts = arg.split("=")
-
-            # Store the parameter name and value in the dictionary
-            # Example: params_dict['name'] = 'California'
-            params_dict[arg_parts[0]] = arg_parts[1]
-
-        # Create an instance of the specified class
-        new_instance = HBNBCommand.classes[args_list[0]]()
-
-        # Iterate thru the paramtrs and set them as attributes of the instance
-        for key, value in params_dict.items():
-            # Replace underscores with spaces in the parameter value
-            if "_" in value:
-                value = value.replace("_", " ")
-            else:
-                try:
-                    # Attempt to evaluate the paramtr value
-                    # (e.g., for numeric values)
-                    value = eval(value)
-                except BaseException:
-                    pass
-
-            # Check if the instance has the specified
-            # attribute before setting it
-            if hasattr(new_instance, key):
-                setattr(new_instance, key, value)
-
-        # Print the ID of the new instance
+            return
+        elif args[0] not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+        # creating a dict from args
+        new_dict = self._create_dict_instance(args[1:])
+        # sending args on form of kwargs
+        new_instance = HBNBCommand.classes[args[0]](**new_dict)
         print(new_instance.id)
-
-        # Save the new instance
         new_instance.save()
-
-    except Exception as e:
-        print("** class doesn't exist **")
 
     def help_create(self):
         """ Help information for the create method """
@@ -228,7 +216,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del (storage.all()[key])
+            del(storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -360,7 +348,6 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
