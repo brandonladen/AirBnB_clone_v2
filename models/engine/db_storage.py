@@ -14,6 +14,16 @@ from models.review import Review
 from models.amenity import Amenity
 
 
+my_classes = {
+    'Amenity': Amenity,
+    'City': City,
+    'Place': Place,
+    'State': State,
+    'Review': Review,
+    'User': User
+}
+
+
 class DBStorage():
     """file storage"""
     __engine = None
@@ -36,9 +46,23 @@ class DBStorage():
     def all(self, cls=None):
         """query on the current db session & return a dict"""
 
-        my_classes = (Amenity, City, Place, Review, State, User)
-        objects = dict()
+        # my_classes = (Amenity, City, Place, Review, State, User)
+         if not self.__session:
+            self.reload()
+        objects = {}
+        if type(cls) == str:
+            cls = my_classes.get(cls, None)
+        if cls:
+            for obj in self.__session.query(cls):
+                objects[obj.__class__.__name__ + '.' + obj.id] = obj
+        else:
+            for cls in my_classes.values():
+                for obj in self.__session.query(cls):
+                    objects[obj.__class__.__name__ + '.' + obj.id] = obj
+        return objects
 
+        """
+        objects = dict()
         if cls is None:
             for item in my_classes:
                 query = self.__session.query(item)
@@ -50,7 +74,7 @@ class DBStorage():
             for obj in query.all():
                 obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
                 objects[obj_key] = obj
-        return objects
+        return objects"""
 
     def new(self, obj):
         """ add object to the current database session"""
