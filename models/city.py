@@ -3,7 +3,6 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
-from models import Place
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
