@@ -36,7 +36,7 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=True)
     reviews = relationship("Review", backref="place", cascade="delete")
     amenities = relationship("Amenity", secondary="place_amenity",
-                             viewonly=True)
+                             viewonly=False)
     amenity_ids = []
 
     def __init__(self, *args, **kwargs):
