@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
-import models
+# import models
 from models.base_model import BaseModel
 from models.base_model import Base
 from models.place import Place
