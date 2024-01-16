@@ -18,3 +18,7 @@ class Place(BaseModel, Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     amenity_ids = []
+
+     def __init__(self, *args, **kwargs):
+        """initialize the  user"""
+        super().__init__(*args, **kwargs)
