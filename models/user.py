@@ -8,9 +8,6 @@ from sqlalchemy.orm import relationship
 from os import getenv
 
 
-Storage = getenv("HBNB_TYPE_STORAGE")
-
-
 class User(BaseModel, Base):
     """
     This class defines a user by various attributes
@@ -28,30 +25,12 @@ class User(BaseModel, Base):
             with a back reference to "user" and cascade "delete".
     """
     __tablename__ = "users"
-    if Storage == "db":
-        email = Column(String(128), nullable=False)
-        password = Column(String(128), nullable=False)
-        first_name = Column(String(128), nullable=True)
-        last_name = Column(String(128), nullable=True)
-        places = relationship(
-                "Place",
-                backref="user",
-                cascade="all, delete-orphan")
-    else:
-        email = ""
-        password = ""
-        first_name = ""
-        last_name = ""
+    email = Column(String(128), nullable=False)
+    password = Column(String(128), nullable=False)
+    first_name = Column(String(128), nullable=True)
+    last_name = Column(String(128), nullable=True)
+    places = relationship("Place", backref="user", cascade="delete")
 
     def __init__(self, *args, **kwargs):
         """initialize the  user"""
         super().__init__(*args, **kwargs)
-
-    @property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, pwd):
-        """setting password values"""
-        self._password = pwd
