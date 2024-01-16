@@ -3,6 +3,7 @@
 import models
 from models.base_model import BaseModel
 from models.base_model import Base
+from models.place import Place
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
