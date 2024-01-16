@@ -26,7 +26,6 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=True)
     amenity_ids = []
 
-
     if getenv("HBNB_TYPE_STORAGE") == "db":
         reviews = relationship('Review', cascade='all, delete, delete-orphan',
                                backref='place')
@@ -37,7 +36,3 @@ class Place(BaseModel, Base):
             review_instances = storage.all("Review").values()
             return [review for review in review_instances
                     if review.place_id == self.id]
-
-     def __init__(self, *args, **kwargs):
-        """initialize the  user"""
-        super().__init__(*args, **kwargs)
