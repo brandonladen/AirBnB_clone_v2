@@ -1,17 +1,27 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-
 from models.base_model import BaseModel, Base
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Float, Integer, Table
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
 import models
+import sqlalchemy
+from sqlalchemy import Column, String, ForeignKey, Integer, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy import Table
 from os import getenv
+from models.amenity import Amenity
+from models.review import Review
+
+
+association_table = Table("place_amenity", Base.metadata,
+                          Column("place_id", String(60),
+                                 ForeignKey("places.id"),
+                                 primary_key=True, nullable=False),
+                          Column("amenity_id", String(60),
+                                 ForeignKey("amenities.id"),
+                                 primary_key=True, nullable=False))
 
 
 class Place(BaseModel, Base):
-
     """ A place to stay """
     __tablename__ = 'places'
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
@@ -24,15 +34,35 @@ class Place(BaseModel, Base):
     price_by_night = Column(Integer, nullable=False, default=0)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    reviews = relationship("Review", backref="place", cascade="delete")
+    amenities = relationship("Amenity", secondary="place_amenity",
+                             viewonly=True)
     amenity_ids = []
 
-    if getenv("HBNB_TYPE_STORAGE") == "db":
-        reviews = relationship('Review', cascade='all, delete, delete-orphan',
-                               backref='place')
-    else:
+    def __init__(self, *args, **kwargs):
+        """initializes Place"""
+        super().__init__(*args, **kwargs)
+
+    if models.storage_type != "db":
         @property
         def reviews(self):
-            from models import storage
-            review_instances = storage.all("Review").values()
-            return [review for review in review_instances
-                    if review.place_id == self.id]
+            """Get a list of all Reviews"""
+            reviewlist = []
+            for review in list(models.storage.all(Review).values()):
+                if review.place_id == self.id:
+                    reviewlist.append(review)
+            return reviewlist
+
+        @property
+        def amenities(self):
+            """ Get Linked Amenities"""
+            amenitylist = []
+            for amenity in list(models.storage.all(Amenity).values()):
+                if amenity.id in self.amenity_ids:
+                    amenitylist.append(amenity)
+            return amenitylist
+
+        @amenities.setter
+        def amenities(self, value):
+            if type(value) == Amenity:
+                self.amenity_ids.append(value.id)
