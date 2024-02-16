@@ -1,7 +1,7 @@
 #!/usr/bin/python3
+"""Start Flask web application"""
 
 from flask import Flask
-import os
 
 app = Flask(__name__)
 @app.route('/', strict_slashes=False)
