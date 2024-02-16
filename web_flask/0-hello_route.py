@@ -7,9 +7,12 @@ app = Flask(__name__)
 @app.route('/', strict_slashes=False)
 
 def hello():
-    return 'Hello HBNB!'
+    """
+    Routing to root, strict_slashes ensure
+    the URL works when it ends both with or without the /
+    """
+    return "Hello HBNB!"
 
-if __name__ == '__main__':
-    host = os.getenv('FLASK_HOST', '0.0.0.0')
-    port = os.getenv('FLASK_PORT', '5000')
-    app.run(host=host, port=int(port))
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
